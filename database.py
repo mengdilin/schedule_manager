@@ -181,9 +181,6 @@ def user_future_events(user_username):
                           (Creates_Events.date = present.date() AND Creates_Events.start_time > present.time()))""", (user_username, user_username))
   return cursor.fetchall()
 
-def decide_on_invite(user_username, eid, decision):
-  return True
-
 if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
   #cursor.execute(query, ('mengdilin',))
@@ -201,4 +198,4 @@ if __name__ == '__main__':
   #print organization_login("broomclub", "broomslife "):
   #print create_event("test_event_2", "2015-10-13", "00:00:03", "00:00:23", "hello3", None, "org_3", "Math", 303)
   #print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
-  print get_users_invites("test_last_12")
+  #print get_users_invites("test_last_12")
