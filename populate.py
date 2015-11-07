@@ -1,4 +1,5 @@
 import database
+from random import randint
 
 if __name__ == '__main__':
   name="test_event_"
@@ -8,9 +9,12 @@ if __name__ == '__main__':
   description="hello"
   image=None
   org_name="org_"
+  user_name="test_last_"
   building=None
   room=None
   buildings = ['Mudd', 'IAB', 'Schermerhorn', 'Math', 'Havemeyer', 'Fayerweather', 'Schapiro', 'Wien', 'CSB', 'Fake Building']
-  categories = ['Speaker', 'Stress Buster', 'Review Session', 'Food', 'Music', 'Meet and Greet', 'Study Session', 'Squash Practice', 'Concert', 'Yoga']
-  for item in categories:
-    database.create_category(item)
+  categories = ['Food', 'Music', 'Meet and Greet']
+  for i in range(20):
+    database.create_invitation(user_name+str(randint(0,20)), org_name+"8", 24)
+
+
