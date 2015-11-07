@@ -172,14 +172,15 @@ if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
   #cursor.execute(query, ('mengdilin',))
   #print cursor.fetchall()
-  name="test_event5"
-  date="2015-10-10"
-  start_time="00:00:01"
-  end_time="00:00:02"
-  description="hello"
-  image=None
-  org_name="broomclub"
-  building=None
-  room=None
+  #name="test_event5"
+  #date="2015-10-10"
+  #start_time="00:00:01"
+  #end_time="00:00:02"
+  #description="hello"
+  #image=None
+  #org_name="broomclub"
+  #building=None
+  #room=None
   #print create_event(name, date, start_time, end_time, description, image, org_name, building, room)
-  print organization_login("broomclub", "broomslife ")
+  #print organization_login("broomclub", "broomslife ")
+  print create_organization("Baking Club", "bake", "abfsaffdc")
