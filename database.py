@@ -40,14 +40,27 @@ def create_event(name, date, start_time, end_time, description, image, org_name,
 def create_invitation():
   return True
 
-def create_decision():
-  return True
-
-def create_location():
-  return True
+def create_location(building, room):
+  cursor = cnx.cursor()
+  cursor.execute("SELECT building, room FROM Locations WHERE building=%s AND room=%s", (building, room))
+  if len(cursor.fetchall()) == 0:
+    cursor.execute("INSERT INTO Locations (building, room) VALUES (%s, %s)", (building, room))
+    cnx.commit()
+    cursor.close()
+    return True
+  cursor.close()
+  return False
 
 def create_category(name):
-  return True
+  cursor = cnx.cursor()
+  cursor.execute("SELECT name FROM Categories WHERE name=%s", (name,))
+  if len(cursor.fetchall()) == 0:
+    cursor.execute("INSERT INTO Categories (name) VALUES (%s)", (name,))
+    cnx.commit()
+    cursor.close()
+    return True
+  cursor.close()
+  return False
 
 def user_login(user_username, password):
   cursor.execute("SELECT password FROM Users WHERE username=%s AND password=%s", (user_username, password))
