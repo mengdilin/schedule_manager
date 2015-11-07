@@ -62,14 +62,27 @@ def create_invitation(user_username, org_username, eid):
   except mysql.connector.Error as err:
     return False
 
-def create_decision():
-  return True
-
-def create_location():
-  return True
+def create_location(building, room):
+  cursor = cnx.cursor()
+  cursor.execute("SELECT building, room FROM Locations WHERE building=%s AND room=%s", (building, room))
+  if len(cursor.fetchall()) == 0:
+    cursor.execute("INSERT INTO Locations (building, room) VALUES (%s, %s)", (building, room))
+    cnx.commit()
+    cursor.close()
+    return True
+  cursor.close()
+  return False
 
 def create_category(name):
-  return True
+  cursor = cnx.cursor()
+  cursor.execute("SELECT name FROM Categories WHERE name=%s", (name,))
+  if len(cursor.fetchall()) == 0:
+    cursor.execute("INSERT INTO Categories (name) VALUES (%s)", (name,))
+    cnx.commit()
+    cursor.close()
+    return True
+  cursor.close()
+  return False
 
 def find_eid(name, date, start_time, end_time, org_name, building, room):
   try:
