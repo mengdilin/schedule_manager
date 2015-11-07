@@ -107,6 +107,14 @@ def find_eid(name, date, start_time, end_time, org_name, building, room):
   except mysql.connector.Error as err:
     return False
 
+def find_eid(name, date, org_name):
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT eid FROM Creates_Events WHERE name=%s AND date=%s AND org_username=%s ",(name, date, org_name))
+    return cursor.fetchall()
+  except mysql.connector.Error as err:
+    return False
+
 def user_login(user_username, password):
   cursor = cnx.cursor()
   cursor.execute("SELECT password FROM Users WHERE username=%s AND password=%s", (user_username, password))
@@ -188,14 +196,14 @@ if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
   #cursor.execute(query, ('mengdilin',))
   #print cursor.fetchall()
-  name="test_event5"
-  date="2015-10-10"
-  start_time="00:00:01"
-  end_time="00:00:02"
+  name="test_event_5"
+  date="2015-10-15"
+  start_time="00:00:05"
+  end_time="00:00:25"
   description="hello"
   image=None
-  org_name="broomclub"
-  building=None
-  room=None
+  org_name="org_5"
+  building="Fayerweather"
+  room=505
   #print create_event(name, date, start_time, end_time, description, image, org_name, building, room)
-  print organization_login("broomclub", "broomslife ")
+  print find_eid(name, date, start_time, end_time, org_name, building, room)
