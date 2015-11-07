@@ -140,33 +140,33 @@ def users_in_organization(org_username):
   cursor = cnx.cursor()
   cursor.execute("""SELECT first_name, last_name
                     FROM Users, Users_Organizations
-                    WHERE Users_Organizations.org_username=%s AND Users.username = Users_Organizarions.user_username""", (user_username))
+                    WHERE Users_Organizations.org_username=%s AND Users.username = Users_Organizations.user_username""", (org_username,))
   return cursor.fetchall()
 
 def organizations_user_is_in(user_username):
   cursor = cnx.cursor()
   cursor.execute("""SELECT Organizations.name
                     FROM Organizations, Users_Organizations
-                    WHERE Users_Organizations.user_username=%s AND Organizations.username = Users_Organizations.org_username""", (user_username))
+                    WHERE Users_Organizations.user_username=%s AND Organizations.username = Users_Organizations.org_username""", (user_username,))
   return cursor.fetchall()
 
 def events_created_by_org(org_username):
   cursor = cnx.cursor()
-  cursor.execute("SELECT name FROM Creates_Events WHERE org_username=%s", (org_username))
+  cursor.execute("SELECT name FROM Creates_Events WHERE org_username=%s", (org_username,))
   return cursor.fetcall()
 
 def get_users_invites(user_username):
   cursor = cnx.cursor()
   cursor.execute("""SELECT Creates_Events.name
                     FROM Creates_Events, Invitations
-                    WHERE Invitations.user_username=%s AND Creates_Events.eid = Invitations.eid""", (user_username))
+                    WHERE Invitations.user_username=%s AND Creates_Events.eid = Invitations.eid""", (user_username,))
   return cursor.fetchall()
 
 def get_events_in_category(category):
   cursor = cnx.cursor()
   cursor.execute("""SELECT Creates_Events.name
                     FROM Creates_Events, Events_Categories
-                    WHERE Events_Categories.name=%s AND Creates_Events.eid = Events_Categories.eid""", (category))
+                    WHERE Events_Categories.name=%s AND Creates_Events.eid = Events_Categories.eid""", (category,))
   return cursor.fetchall()
 
 def user_past_events(user_username):
@@ -193,9 +193,6 @@ def decide_on_invite(user_username, eid, decision):
   return True
 
 if __name__ == '__main__':
-  #query = "SELECT username FROM Users WHERE username=%s"
-  #cursor.execute(query, ('mengdilin',))
-  #print cursor.fetchall()
   name="test_event_5"
   date="2015-10-15"
   start_time="00:00:05"
@@ -207,3 +204,5 @@ if __name__ == '__main__':
   room=505
   #print create_event(name, date, start_time, end_time, description, image, org_name, building, room)
   print find_eid(name, date, start_time, end_time, org_name, building, room)
+  print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
+
