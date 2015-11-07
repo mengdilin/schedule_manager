@@ -31,7 +31,7 @@ def create_organization(name, org_username, password):
     cursor = cnx.cursor()
     cursor.execute("SELECT username FROM Organizations WHERE username=%s", (org_username,))
     if len(cursor.fetchall()) == 0:
-      cursor.execute("INSERT INTO Organizations (name, org_username, password) VALUES (%s, %s, %s)", (name, org_username, password))
+      cursor.execute("INSERT INTO Organizations (name, username, password) VALUES (%s, %s, %s)", (name, org_username, password))
       cnx.commit()
       cursor.close()
       return True
@@ -111,6 +111,8 @@ def participates_in_org(user_username, org_username):
   cursor = cnx.cursor()
   cursor.execute("""INSERT INTO Users_Organizations (user_username, org_username)
                     VALUES (%s, %s)""", (user_username, org_username))
+  cnx.commit()
+  cursor.close()
 
 def users_in_organization(org_username):
   cursor = cnx.cursor()
