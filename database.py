@@ -2,7 +2,6 @@ import mysql.connector
 from mysql.connector import errorcode
 from datetime import datetime
 
-
 cnx = mysql.connector.connect(user='ml3567'
   , password='database'
   ,host='cs4111.cr3ixrw5cu0f.us-west-2.rds.amazonaws.com'
@@ -107,14 +106,6 @@ def find_eid(name, date, start_time, end_time, org_name, building, room):
   except mysql.connector.Error as err:
     return False
 
-def find_eid(name, date, org_name):
-  try:
-    cursor = cnx.cursor()
-    cursor.execute("SELECT eid FROM Creates_Events WHERE name=%s AND date=%s AND org_username=%s ",(name, date, org_name))
-    return cursor.fetchall()
-  except mysql.connector.Error as err:
-    return False
-
 def user_login(user_username, password):
   cursor = cnx.cursor()
   cursor.execute("SELECT password FROM Users WHERE username=%s AND password=%s", (user_username, password))
@@ -153,7 +144,7 @@ def organizations_user_is_in(user_username):
 def events_created_by_org(org_username):
   cursor = cnx.cursor()
   cursor.execute("SELECT name FROM Creates_Events WHERE org_username=%s", (org_username,))
-  return cursor.fetcall()
+  return cursor.fetchall()
 
 def find_user(username):
   try:
@@ -175,7 +166,7 @@ def get_users_invites(user_username):
   cursor = cnx.cursor()
   cursor.execute("""SELECT Creates_Events.name
                     FROM Creates_Events, Invitations
-                    WHERE Invitations.user_username=%s AND Creates_Events.eid = Invitations.eid""", (user_username,))
+                    WHERE Invitations.user_username=%s AND Invitations.eid = Creates_Events.eid""", (user_username,))
   return cursor.fetchall()
 
 def get_events_in_category(category):
@@ -186,37 +177,47 @@ def get_events_in_category(category):
   return cursor.fetchall()
 
 def user_past_events(user_username):
-  cursor = cnx.cursor()
   present = datetime.now()
-  cursor.execute("""SELECT Creates_Events.name
-                    FROM Creates_Events, Invitations, Decides_Decisions
-                    WHERE Invitations.user_username=%s AND Decides_Decisions.user_username=%s AND Decides_Decisions.status_id=1
-                          AND Creates_Events.eid = Invitations.eid AND ((Creates_Events.date < present.date()) OR
-                          (Creates_Events.date = present.date() AND Creates_Events.end_time < present.time()))""", (user_username, user_username))
+  present_time = present.time()
+  present_date = present.date()
+  cursor = cnx.cursor()
+  cursor.execute("""SELECT DISTINCT *
+                    FROM Creates_Events, Invitations
+                    WHERE Invitations.user_username=%s AND Invitations.status_id=1
+                          AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) > 0
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.end_time)) > 0)""",
+                (user_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
 def user_future_events(user_username):
   cursor = cnx.cursor()
   present = datetime.now()
-  cursor.execute("""SELECT Creates_Events.name
-                    FROM Creates_Events, Invitations, Decides_Decisions
-                    WHERE Invitations.user_username=%s AND Decides_Decisions.username=%s AND Decides_Decisions.status_id=1
-                          AND Creates_Events.eid = Invitations.eid AND ((Creates_Events.date > present.date()) OR
-                          (Creates_Events.date = present.date() AND Creates_Events.start_time > present.time()))""", (user_username, user_username))
+  present_date = present.date()
+  present_time = present.time()
+  cursor.execute("""SELECT DISTINCT *
+                    FROM Creates_Events, Invitations
+                    WHERE Invitations.user_username=%s AND Invitations.status_id=1
+                          AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                (user_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
-def decide_on_invite(user_username, eid, decision):
-  return True
-
 if __name__ == '__main__':
-  name="test_event_5"
-  date="2015-10-15"
-  start_time="00:00:05"
-  end_time="00:00:25"
-  description="hello"
-  image=None
-  org_name="org_5"
-  building="Fayerweather"
-  room=505
+  #query = "SELECT username FROM Users WHERE username=%s"
+  #cursor.execute(query, ('mengdilin',))
+  #print cursor.fetchall()
+  #name="test_event5"
+  #date="2015-10-10"
+  #start_time="00:00:01"
+  #end_time="00:00:02"
+  #description="hello"
+  #image=None
+  #org_name="broomclub"
+  #building=None
+  #room=None
   #print create_event(name, date, start_time, end_time, description, image, org_name, building, room)
-  print find_user("mengdilin")
+  #print organization_login("broomclub", "broomslife "):
+  #print create_event("test_event_2", "2015-10-13", "00:00:03", "00:00:23", "hello3", None, "org_3", "Math", 303)
+  #print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
+  print user_past_events("test_last_14")
+
