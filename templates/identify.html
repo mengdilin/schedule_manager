@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Schedule Manager</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<!-- StyleSheet -->
+<link rel="stylesheet" href="static/css/bootstrap.css" />
+<link rel="stylesheet" href="static/css/bootstrap-responsive.css" />
+<style>
+body{background-color: #F7F7F6;}
+.login{padding-top: 65px;}
+.center{float: none; margin-left: auto; margin-right: auto;}
+</style>
+</head>
+
+<body>
+<!-- Nav Bar -->
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+    <a href="#" class="brand">Schedule Manager</a>
+    </div>
+  </div>
+</div>
+<!-- Nav Bar Ends -->
+
+<!-- Log In Container -->
+<div class="container login">
+    <div class="row">
+    <div class="center well span4">
+        <form method="POST" action="identify" accept-charset="UTF-8">
+        <p>
+          <button class="btn btn-large btn-primary" name="button" type="submit" value="user">I am a user</button>
+          <button class="btn btn-large" type="submit" name="button" value="organization">I am an organization</button>
+        </p>
+        </form>
+        </div>
+    </div>
+</div>
+<!-- Log In Container Ends -->
+<!-- JavaScript -->
+<script src="static/js/jquery.js"></script>
+<script src="static/js/bootstrap.js"></script>
+</body>
+</html>

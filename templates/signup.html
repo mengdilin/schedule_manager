@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Schedule Manager</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<!-- StyleSheet -->
+<link rel="stylesheet" href="static/css/bootstrap.css" />
+<link rel="stylesheet" href="static/css/bootstrap-responsive.css" />
+<style>
+body{background-color: #F7F7F6;}
+.login{padding-top: 65px;}
+.center{float: none; margin-left: auto; margin-right: auto;}
+</style>
+</head>
+
+<body>
+<!-- Nav Bar -->
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+
+            </a>
+
+    <a href="#" class="brand">Schedule Manager</a>
+
+    <div class="nav-collapse collapse pull-right">
+        <ul class="nav">
+            <li><a href="/identify"><i class="icon-user icon-white"></i> Log In</a></li>
+            <li class="divider-vertical"></li>
+        </ul>
+    </div>
+    </div>
+  </div>
+</div>
+<!-- Nav Bar Ends -->
+
+<!-- Sign Up Container -->
+<div class="container login">
+    <div class="row ">
+        <div class="center span4 well">
+            <legend>Please Sign Up</legend>
+            {% if incorrect %}
+            <div class="alert alert-error">
+                <a class="close" data-dismiss="alert" href="#">×</a>Sign Up Has Failed!
+            </div>
+            {% endif %}
+             <form method="POST" action="{{action_name}}" accept-charset="UTF-8">
+             <input type="text" id="username" class="span4" name="username" placeholder="Username" />
+             <input type="password" id="password" class="span4" name="password" placeholder="Password" />
+            <input type="password" id="confirm" class="span4" name="confirm" placeholder="Confirm Password" />
+            {% if user %}
+            <input type="text" id="first_name" class="span4" name="first_name" placeholder="First Name" />
+            <input type="text" id="last_name" class="span4" name="last_name" placeholder="Last Name" />
+            {% else %}
+            <input type="text" id="org_name" class="span4" name="org_name" placeholder="Organization Name" />
+            {% endif %}
+            <button type="submit" name="submit" class="btn btn-primary btn-block" value="sign">Sign Up</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Sign Up Container Ends -->
+
+<!-- JavaScript -->
+<script src="static/js/jquery.js"></script>
+<script src="static/js/bootstrap.js"></script>
+</body>
+</html>
