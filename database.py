@@ -5,7 +5,8 @@ from datetime import datetime
 cnx = mysql.connector.connect(user='ml3567'
   , password='database'
   ,host='cs4111.cr3ixrw5cu0f.us-west-2.rds.amazonaws.com'
-  ,database='cs4111_new')
+  ,database='cs4111_new'
+  ,buffered=True)
 
 def execute_query(query):
   cursor.execute(query)
@@ -44,12 +45,11 @@ def create_event(name, date, start_time, end_time, description, image, org_name,
     cursor = cnx.cursor()
     cursor.execute("INSERT INTO Creates_Events (name, date, start_time, end_time, description, image, org_username, building, room) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (name, date, start_time, end_time, description, image, org_name, building, room))
     cnx.commit()
-    cursor.lastrowid;
+    return cursor.lastrowid;
     cursor.close()
   except mysql.connector.Error as err:
     print err
     return False
-  return True
 
 def create_invitation(user_username, org_username, eid):
   try:
@@ -59,6 +59,7 @@ def create_invitation(user_username, org_username, eid):
     cursor.close()
     return True
   except mysql.connector.Error as err:
+    print err
     return False
 
 def create_location(building, room):
@@ -173,15 +174,27 @@ def find_user(username):
   try:
     cursor = cnx.cursor()
     cursor.execute("SELECT first_name, last_name FROM Users WHERE username=%s", (username,))
-    return cursor.fetchone()
+    for (first_name, last_name) in cursor:
+      return ("{} {}").format(str(first_name), str(last_name))
   except mysql.connector.Error as err:
+    return None
+
+def find_event(eid):
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT name, date, start_time, end_time, description, image, org_username, building, room FROM Creates_Events WHERE eid=%s", (eid,))
+    for (name, date, start_time, end_time, description, image, org_username, building, room) in cursor:
+      return ("{} {} {} {} {} {} {} {} {}").format(str(name), str(date), str(start_time), str(end_time), str(description), str(image), str(org_username), str(building), str(room))
+  except mysql.connector.Error as err:
+    print err
     return None
 
 def find_organization(username):
   try:
     cursor = cnx.cursor()
     cursor.execute("SELECT name FROM Organizations WHERE username=%s", (username,))
-    return cursor.fetchone()
+    for (name) in cursor:
+      return ("{}").format(str(name[0]))
   except mysql.connector.Error as err:
     return None
 
@@ -198,6 +211,19 @@ def get_events_in_category(category):
                     FROM Creates_Events, Events_Categories
                     WHERE Events_Categories.name=%s AND Creates_Events.eid = Events_Categories.eid""", (category,))
   return cursor.fetchall()
+
+def get_categories_of_event(eid):
+  cursor = cnx.cursor()
+  try:
+    cursor.execute("""SELECT name
+                    FROM Events_Categories
+                    WHERE eid=%s """, (eid,))
+    for (name) in cursor:
+      return ("{}").format(str(name[0]))
+  except mysql.connector.Error as err:
+    return None
+  finally:
+    cursor.close()
 
 def user_past_events(user_username):
   present = datetime.now()

@@ -1,22 +1,34 @@
 from flask import Flask
+from flask import send_from_directory
 from flask import session,render_template,url_for,redirect,request
 import database
 import datetime
 import json
 import uuid
 import os
+import time
 
+#left to do: populate dash board with actual data
+#data need to lead to event's detail's page properly
+# user needs to be able to participate in organization
 app = Flask(__name__)
 app.secret_key="secret key" # Since we'll be using sessions
 app.config['UPLOAD_FOLDER'] = 'static/Uploads'
 
-#format: '%Y-%m-%d'
 def validate(date_text, date_format):
   try:
     datetime.datetime.strptime(date_text, date_format)
     return True
   except ValueError:
     return False
+
+def parse_date(date_text):
+  dates = date_text.split('-')
+  return datetime.date(int(dates[0]), int(dates[1]), int(dates[2]))
+
+def parse_time(time_text):
+  times = time_text.split(':')
+  return datetime.time(int(times[0]),int(times[1]),int(times[2]))
 
 @app.route("/")
 def index():
@@ -59,9 +71,9 @@ def org_dashboard():
   user = session["user"]
   name = database.find_organization(user)
   if request.method=="GET":
-    return render_template('dash.html', user_first=str(name[0]))
+    return render_template('dash.html', user_first=str(name))
   if request.method=="POST":
-    return render_template('dash.html', user_first=str(name[0]), nav_redir="/create_event", redir_name="Create Events")
+    return render_template('dash.html', user_first=str(name), nav_redir="/create_event", redir_name="Create Events")
 
 @app.route('/orglogin',methods=['GET','POST'])
 def org_login():
@@ -80,34 +92,102 @@ def create_event():
   locations = database.get_locations()
   categories = database.get_categories()
   if request.method=="GET":
-    return render_template("event_form.html", locations=locations, categories=categories)
+    return render_template("event_form.html", locations=locations, categories=categories, incorrect=False, dash_redir='/orgdash')
   if request.method=="POST":
-    print "here"
-    filePath = request.form['filePath']
-    print "here1"
-    name = request.form["name"]
-    print "here2"
-    description = request.form["description"]
-    print "here3"
-    date = request.form["date"]
-    print "here4"
-    start_time = request.form["start_time"]
-    print "here5"
-    end_time = request.form["end_time"]
-    print "here6"
-    location = request.form["location_hid"]
-    print "here7"
-    category = request.form["category_hid"]
-    print "here8"
-    org_name = database.find_organization(user)
-    locations = location.split(" ")
-    building = locations[0]
-    room = location[1]
-    print locations
-    print database.create_event(name, date, start_time, end_time, None, None, org_name, None, None)
-    print filePath, name, description, date, start_time, end_time, location, category
-    return redirect(url_for("about"))
+    try:
+      filePath = request.form['filePath']
+      name = request.form["name"]
+      description = request.form["description"]
+      date = request.form["date"]
+      start_time = request.form["start_time"]
+      end_time = request.form["end_time"]
+      location = request.form["location_hid"]
+      category = request.form["category_hid"]
+      building = None
+      room = None
+      if location is not None:
+        locations = location.split(" ")
+        building = locations[0]
+        room = location[1]
+      result = database.create_event(name,
+        parse_date(date),
+        parse_time(start_time),
+        parse_time(end_time),
+        description,
+        filePath,
+        user,
+        building,
+        room)
+      if result != False:
+        database.create_event_category(result, category)
+        return redirect(url_for("org_display_event/", result))
+      else:
+        return render_template("event_form.html", locations=locations, categories=categories, incorrect=True, dash_redir='/orgdash')
+    except Error:
+      return render_template("event_form.html", locations=locations, categories=categories, incorrect=True, dash_redir='/orgdash')
 
+
+@app.route('/org_display_event/<int:eid>',methods=['GET', 'POST'])
+def org_display_event(eid):
+  event = database.find_event(eid)
+  category = database.get_categories_of_event(eid)
+  if request.method=='GET':
+    return render_template("event.html",
+      name=event[0],
+      filepath=event[5],
+      description=event[4],
+      date=event[1],
+      start_time=event[2],
+      end_time=event[3],
+      location=event[7]+" "+event[8],
+      category=str(category),
+      organizer=event[6],
+      event=True,
+      incorrect=False,
+      success=False,
+      eid=eid,
+      dash_redir='/orgdash')
+  if request.method=='POST':
+    username=request.form["name"]
+    if database.create_invitation(username, session["user"], eid):
+      print "inside"
+      return render_template("event.html",
+      name=event[0],
+      filepath=event[5],
+      description=event[4],
+      date=event[1],
+      start_time=event[2],
+      end_time=event[3],
+      location=event[7]+" "+event[8],
+      category=str(category),
+      organizer=event[6],
+      event=True,
+      incorrect=False,
+      success=True,
+      eid=eid,
+      dash_redir='/orgdash')
+    else:
+      return render_template("event.html",
+      name=event[0],
+      filepath=event[5],
+      description=event[4],
+      date=event[1],
+      start_time=event[2],
+      end_time=event[3],
+      location=event[7]+" "+event[8],
+      category=str(category),
+      organizer=event[6],
+      event=True,
+      incorrect=True,
+      success=False,
+      eid=eid,
+      dash_redir='/orgdash')
+
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+  print send_from_directory(app.config['UPLOAD_FOLDER'],filename)
+  return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
 
 @app.route('/orgsignup',methods=['GET','POST'])
 def org_sign_up():

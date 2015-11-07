@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Schedule Manager</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+<!-- StyleSheet -->
+<link rel="stylesheet" href="../static/css/bootstrap.css" />
+<link rel="stylesheet" href="../static/css/bootstrap-responsive.css" />
+<style>
+body{background-color: #F7F7F6;}
+.login{padding-top: 65px;}
+.center{float: none; margin-left: auto; margin-right: auto;}
+</style>
+</head>
+
+<body>
+<!-- Nav Bar -->
+<div class="navbar navbar-inverse navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+
+            </a>
+
+    <a href="#" class="brand">Schedule Manager</a>
+
+    <div class="nav-collapse collapse pull-right">
+        <ul class="nav">
+            <li><a href="{{dash_redir}}"><i class="icon-user icon-white"></i>Dashboard</a></li>
+            <li class="divider-vertical"></li>
+        </ul>
+    </div>
+    </div>
+  </div>
+</div>
+<!-- Nav Bar Ends -->
+
+<!-- Log In Container -->
+<div class="container login">
+    <div class="row ">
+        <div class="center span8 well">
+            <legend>{{name}}</legend>
+            <img src="../{{filepath}}" style="width: 140px; height: 140px;"/>
+            <p>description: {{description}} </p>
+            <p>category: {{category}} <p>
+            <p>organizer: {{organizer}} </p>
+            <legend>date: {{date}}</legend>
+            <legend>start time: {{start_time}} </legend>
+            <legend>end time: {{end_time}} </legend>
+            <legend>location: {{location}} </legend>
+        </div>
+    </div>
+    {% if event %}
+    <div class="row">
+        <form role="form" method="POST" action="/org_display_event/{{eid}}">
+
+        {% if incorrect %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>Failed to invite. Invalid Username.
+        </div>
+        {% endif %}
+        {% if success %}
+        <div class="alert alert-success">
+            <a class="close" data-dismiss="alert" href="#">×</a>Success!
+        </div>
+        {% endif %}
+        <div class="form-group">
+         <label for="txtTitle">Invite User</label>
+        <input id="name" name="name" type="text" placeholder="username" class="form-control input-md">
+        <input id="invite" name="invite" class="btn btn-primary" type="submit" value="Invite" />
+        </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+<!-- Log In Container Ends -->
+
+<!-- JavaScript -->
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/bootstrap.js"></script>
+</body>
+</html>
