@@ -130,6 +130,12 @@ def find_eid(name, date, start_time, end_time, org_name, building, room):
   except mysql.connector.Error as err:
     return False
 
+def events_at_same_time(name, date, start_time, end_time, org_name, building, room):
+  eid = find_eid(name, date, start_time, end_time, org_name, building, room)
+  cursor = cnx.cursor()
+  cursor.execute("SELECT * FROM Creates_Events WHERE date=%s AND start_time=%s", (date, start_time))
+  return cursor.fetchall()
+
 def user_login(user_username, password):
   cursor = cnx.cursor()
   cursor.execute("SELECT password FROM Users WHERE username=%s AND password=%s", (user_username, password))
@@ -251,6 +257,7 @@ def user_future_events(user_username):
                 (user_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
+
 if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
   #cursor.execute(query, ('mengdilin',))
@@ -268,5 +275,6 @@ if __name__ == '__main__':
   #print organization_login("broomclub", "broomslife "):
   #print create_event("test_event_2", "2015-10-13", "00:00:03", "00:00:23", "hello3", None, "org_3", "Math", 303)
   #print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
-  print user_past_events("test_last_14")
+  #print user_past_events("test_last_14")
+  print events_at_same_time("test_event_1", "2015-10-11", "00:00:01", "00:00:21", "org_1", "IAB", 101)
 
