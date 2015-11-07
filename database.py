@@ -45,17 +45,16 @@ def create_event(name, date, start_time, end_time, description, image, org_name,
     cursor = cnx.cursor()
     cursor.execute("INSERT INTO Creates_Events (name, date, start_time, end_time, description, image, org_username, building, room) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", (name, date, start_time, end_time, description, image, org_name, building, room))
     cnx.commit()
+    cursor.lastrowid;
     cursor.close()
-    return True
   except mysql.connector.Error as err:
     return False
-
   return True
 
 def create_invitation(user_username, org_username, eid):
   try:
     cursor = cnx.cursor()
-    cursor.execute("INSERT INTO Invitations (user_username, org_username, eid) VALUES (%s, %s, %s, %s, %s)", (user_username, org_username, eid))
+    cursor.execute("INSERT INTO Invitations (user_username, org_username, eid) VALUES (%s, %s, %s)", (user_username, org_username, eid))
     cnx.commit()
     cursor.close()
     return True
@@ -63,33 +62,48 @@ def create_invitation(user_username, org_username, eid):
     return False
 
 def create_location(building, room):
-  cursor = cnx.cursor()
-  cursor.execute("SELECT building, room FROM Locations WHERE building=%s AND room=%s", (building, room))
-  if len(cursor.fetchall()) == 0:
-    cursor.execute("INSERT INTO Locations (building, room) VALUES (%s, %s)", (building, room))
-    cnx.commit()
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT building, room FROM Locations WHERE building=%s AND room=%s", (building, room))
+    if len(cursor.fetchall()) == 0:
+      cursor.execute("INSERT INTO Locations (building, room) VALUES (%s, %s)", (building, room))
+      cnx.commit()
+      cursor.close()
+      return True
     cursor.close()
-    return True
-  cursor.close()
-  return False
+    return False
+  except mysql.connector.Error as err:
+    return False
 
 def create_category(name):
-  cursor = cnx.cursor()
-  cursor.execute("SELECT name FROM Categories WHERE name=%s", (name,))
-  if len(cursor.fetchall()) == 0:
-    cursor.execute("INSERT INTO Categories (name) VALUES (%s)", (name,))
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT name FROM Categories WHERE name=%s", (name,))
+    if len(cursor.fetchall()) == 0:
+      cursor.execute("INSERT INTO Categories (name) VALUES (%s)", (name,))
+      cnx.commit()
+      cursor.close()
+      return True
+    cursor.close()
+    return False
+  except mysql.connector.Error as err:
+    return False
+
+def create_event_category(eid, name):
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("INSERT INTO Events_Categories (name, eid) VALUES (%s, %s)", (name, eid))
     cnx.commit()
     cursor.close()
     return True
-  cursor.close()
-  return False
+  except mysql.connector.Error as err:
+    return False
 
 def find_eid(name, date, start_time, end_time, org_name, building, room):
   try:
     cursor = cnx.cursor()
     cursor.execute("SELECT eid FROM Creates_Events WHERE name=%s AND date=%s AND start_time=%s AND end_time=%s AND org_username=%s AND building=%s AND room=%s",(name, date, start_time, end_time, org_name, building, room))
-    cursor.close()
-    return True
+    return cursor.fetchall()
   except mysql.connector.Error as err:
     return False
 
