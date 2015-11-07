@@ -155,6 +155,22 @@ def events_created_by_org(org_username):
   cursor.execute("SELECT name FROM Creates_Events WHERE org_username=%s", (org_username,))
   return cursor.fetcall()
 
+def find_user(username):
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT first_name, last_name FROM Users WHERE username=%s", (username,))
+    return cursor.fetchone()
+  except mysql.connector.Error as err:
+    return None
+
+def find_organization(username):
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT name FROM Organizations WHERE username=%s", (username,))
+    return cursor.fetchone()
+  except mysql.connector.Error as err:
+    return None
+
 def get_users_invites(user_username):
   cursor = cnx.cursor()
   cursor.execute("""SELECT Creates_Events.name
@@ -203,6 +219,4 @@ if __name__ == '__main__':
   building="Fayerweather"
   room=505
   #print create_event(name, date, start_time, end_time, description, image, org_name, building, room)
-  print find_eid(name, date, start_time, end_time, org_name, building, room)
-  print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
-
+  print find_user("mengdilin")

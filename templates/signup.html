@@ -47,7 +47,7 @@ body{background-color: #F7F7F6;}
             <legend>Please Sign Up</legend>
             {% if incorrect %}
             <div class="alert alert-error">
-                <a class="close" data-dismiss="alert" href="#">×</a>Sign Up Has Failed!
+                <a class="close" data-dismiss="alert" href="#">×</a>Sign Up Failed! Passwords don't match or username has been taken!
             </div>
             {% endif %}
              <form method="POST" action="{{action_name}}" accept-charset="UTF-8">
