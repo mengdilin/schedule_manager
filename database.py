@@ -47,6 +47,7 @@ def create_event(name, date, start_time, end_time, description, image, org_name,
     cursor.lastrowid;
     cursor.close()
   except mysql.connector.Error as err:
+    print err
     return False
   return True
 
@@ -73,6 +74,28 @@ def create_location(building, room):
     return False
   except mysql.connector.Error as err:
     return False
+
+def get_locations():
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT * FROM Locations")
+    result = []
+    for (building, room) in cursor:
+      result.append(("{} {}").format(str(building), str(room)))
+    return result
+  except mysql.connector.Error as err:
+    return None
+
+def get_categories():
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("SELECT * FROM Categories")
+    result = []
+    for (name) in cursor:
+      result.append(("{}").format(str(name[0])))
+    return result
+  except mysql.connector.Error as err:
+    return None
 
 def create_category(name):
   try:

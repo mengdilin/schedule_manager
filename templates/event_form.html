@@ -5,33 +5,41 @@
 <title>Schedule Manager</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-<!-- StyleSheet -->
-<link rel="stylesheet" href="static/css/bootstrap.css" />
-<link rel="stylesheet" href="static/css/bootstrap-responsive.css" />
-
-<!-- Include Bootstrap Datepicker -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker.min.css" />
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/css/datepicker3.min.css" />
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.min.js"></script>
-
-
 <!-- JavaScript -->
 <script src="static/js/jquery.js"></script>
 <script src="static/js/bootstrap.js"></script>
+<script src="static/js/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="static/js/jquery.fileupload.js"></script>
+<script type="text/javascript" src="static/js/jquery.fileupload-process.js"></script>
+<script type="text/javascript" src="static/js/jquery.fileupload-ui.js"></script>
 
-<style type="text/css">
-/**
- * Override feedback icon position
- * See http://formvalidation.io/examples/adjusting-feedback-icon-position/
- */
-#eventForm .form-control-feedback {
-    top: 0;
-    right: -15px;
-}
+<!-- StyleSheet -->
+<link rel="stylesheet" href="static/css/bootstrap.css" />
+<link rel="stylesheet" href="static/css/bootstrap-responsive.css" />
+<style>
 body{background-color: #F7F7F6;}
 .login{padding-top: 65px;}
 .center{float: none; margin-left: auto; margin-right: auto;}
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
 </style>
 
 </head>
@@ -51,7 +59,10 @@ body{background-color: #F7F7F6;}
     <a href="#" class="brand">Schedule Manager</a>
 
     <div class="nav-collapse collapse pull-right">
-
+        <ul class="nav">
+            <li><a href="{{sign_up_redir}}"><i class="icon-user icon-white"></i> Sign Up</a></li>
+            <li class="divider-vertical"></li>
+        </ul>
     </div>
     </div>
   </div>
@@ -60,75 +71,157 @@ body{background-color: #F7F7F6;}
 
 <!-- Log In Container -->
 <div class="container login">
-    <div class="row">
-      <form id="eventForm" method="post" class="form-horizontal">
-    <div class="form-group">
-        <label class="col-xs-3 control-label">Event</label>
-        <div class="col-xs-5">
-            <input type="text" class="form-control" name="name" />
-        </div>
+    <div class="row ">
+        <div class="center span8 well">
+<form role="form" method="POST" action="/create_event">
+
+
+<!-- Form Name -->
+<legend>Create Event</legend>
+
+<!-- Text input-->
+<div class="form-group">
+    <label for="txtTitle">Event Name</label>
+
+    <input id="name" name="name" type="text" placeholder="placeholder" class="form-control input-md">
+
+</div>
+
+<!-- Textarea -->
+<div class="form-group">
+    <label for="txtPost">Description</label>
+
+    <textarea class="form-control" id="description" name="description"></textarea>
+
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label for="txtTitle">Date: yyyy-mm-dd</label>
+
+    <input id="date" name="date" type="text" placeholder="yyyy-mm-dd" class="form-control input-md">
+
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label for="txtTitle">Start Time: hh:mm:ss</label>
+
+    <input id="start_time" name="start_time" type="text" placeholder="hh:mm:ss" class="form-control input-md">
+
+</div>
+
+<!-- Text input-->
+<div class="form-group">
+    <label for="txtTitle">End Time: hh:mm:ss</label>
+
+    <input id="end_time" name="end_time" type="text" placeholder="hh:mm:ss" class="form-control input-md">
+
+</div>
+
+<div class="form-group">
+  <label for="txtPost">Event Location</label>
+  <div class="dropdown locations">
+    <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" name="locate" id="locate">Available Locations
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" id="location">
+      {%for row in locations%}
+    <li><a href="#">{{ row }} </a></li>
+        {% endfor %}
+    </ul>
+  </div>
+  <input type="hidden" name="location_hid" id="location_hid" value="" type="text"></input>
+</div>
+
+<div class="form-group">
+  <label for="txtPost">Event Category</label>
+  <div class="dropdown categories">
+    <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" name="categ" id="categ">Available Categories
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" id="category">
+      {%for row in categories%}
+    <li><a href="#">{{ row }} </a></li>
+        {% endfor %}
+    </ul>
+  </div>
+    <input type="hidden" name="category_hid" id="category_hid" value="" type="text"></input>
+</div>
+
+<div class="form-group">
+    <label for="txtPost">Event Thumbnail</label>
+
+    <div class="input-group">
+        <span class="input-group-btn">
+        <span class="btn btn-primary btn-file">
+            Browse&hellip; <input type="file" id="fileupload" name="file" multiple>
+        </span>
+        </span>
+        <div class="pull-right">
+</div>
+<input type="hidden" name="filePath" id="filePath"></input>
     </div>
 
-    <div class="form-group">
-        <label class="col-xs-3 control-label">Date</label>
-        <div class="col-xs-5 date">
-            <div class="input-group input-append date" id="datePicker">
-                <input type="text" class="form-control" name="date" />
-                <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
-            </div>
-        </div>
-    </div>
+</div>
+<div class="form-group">
+    <img id="imgUpload" style="width: 140px; height: 140px;" class="img-thumbnail">
+</div>
 
-    <div class="form-group">
-        <div class="col-xs-5 col-xs-offset-3">
-            <button type="submit" class="btn btn-default">Validate</button>
-        </div>
-    </div>
+<!-- Button -->
+<div class="form-group">
+
+    <p class="text-center">
+        <input id="singlebutton" name="singlebutton" class="btn btn-primary" type="submit" value="Submit" />
+    </p>
+</div>
+
+
 </form>
-
-    </div>
+</div>
+</div>
+</div>
 </div>
 <!-- Log In Container Ends -->
+
 </body>
 <script>
-$(document).ready(function() {
-    $('#datePicker')
-        .datepicker({
-            format: 'mm/dd/yyyy'
-        })
-        .on('changeDate', function(e) {
-            // Revalidate the date field
-            $('#eventForm').formValidation('revalidateField', 'date');
-        });
-
-    $('#eventForm').formValidation({
-        framework: 'bootstrap',
-        icon: {
-            valid: 'glyphicon glyphicon-ok',
-            invalid: 'glyphicon glyphicon-remove',
-            validating: 'glyphicon glyphicon-refresh'
+$(function() {
+    $('#fileupload').fileupload({
+        url: 'upload',
+        dataType: 'json',
+        add: function(e, data) {
+            data.submit();
         },
-        fields: {
-            name: {
-                validators: {
-                    notEmpty: {
-                        message: 'The name is required'
-                    }
-                }
-            },
-            date: {
-                validators: {
-                    notEmpty: {
-                        message: 'The date is required'
-                    },
-                    date: {
-                        format: 'MM/DD/YYYY',
-                        message: 'The date is not a valid'
-                    }
-                }
-            }
+        success: function(response, status) {
+            var filePath = 'static/Uploads/' + response.filename;
+            $('#imgUpload').attr('src',filePath);
+            $('#filePath').val(filePath);
+        },
+        error: function(error) {
+            console.log(error);
         }
     });
+})
+
+ $(function(){
+
+    $("#location li a").click(function(){
+      $(".locations .btn:first-child").text($(this).text());
+      $(".locations btn:first-child").val($(this).text());
+      $("#location_hid").val($(this).text());
+   });
+
+});
+
+  $(function(){
+
+    $("#category li a").click(function(){
+
+      $(".categories .btn:first-child").text($(this).text());
+      $(".categories btn:first-child").val($(this).text());
+      $("#category_hid").val($(this).text());
+
+   });
+
 });
 </script>
 </html>
