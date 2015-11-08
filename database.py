@@ -257,6 +257,62 @@ def user_future_events(user_username):
                 (user_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
+def delete_invite(user_username, org_username, eid, status_id):
+  cursor = cnx.cursor()
+  if status_id == 2:
+    cursor.execute("DELETE FROM Invitations WHERE user_username=%s AND org_username=%s AND eid=%s", (user_username, org_username, eid))
+    cnx.commit()
+    cursor.close()
+    return True
+  cursor.close()
+  return False
+
+def user_invites_by_category(user_username, keyword):
+  cursor = cnx.cursor()
+  present = datetime.now()
+  present_date = present.date()
+  present_time = present.time()
+  cursor.execute("""SELECT DISTINCT *
+                    FROM Creates_Events, Invitations, Events_Categories
+                    WHERE Invitations.user_username=%s AND Invitations.status_id=1 AND Creates_Events.eid = Events_Categories.eid
+                          AND Events_Categories.name REGEXP %s AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                (user_username, keyword, present_date, present_date, present_time))
+  return cursor.fetchall()
+
+def org_events_by_category(org_username, keyword):
+  cursor = cnx.cursor()
+  cursor.execute("""SELECT DISTINCT *
+                    FROM Creates_Events, Events_Categories
+                    WHERE Creates_Events.eid = Events_Categories.eid AND Creates_Events.org_username=%s AND Events_Categories.name REGEXP %s """,
+                 (org_username, keyword))
+  return cursor.fetchall()
+
+def org_future_events_by_category(org_username, keyword):
+  cursor = cnx.cursor()
+  present = datetime.now()
+  present_date = present.date()
+  present_time = present.time()
+  cursor.execute("""SELECT DISTINCT *
+                    FROM Creates_Events, Events_Categories
+                    WHERE  Creates_Events.eid = Events_Categories.eid AND Creates_Events.org_username=%s AND Events_Categories.name REGEXP %s
+                           AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                (org_username, keyword, present_date, present_date, present_time))
+  return cursor.fetchall()
+
+def future_events_with_status(user_username, status_id):
+  cursor = cnx.cursor()
+  present = datetime.now()
+  present_date = present.date()
+  present_time = present.time()
+  cursor.execute("""SELECT DISTINCT *
+                    FROM Creates_Events, Invitations
+                    WHERE Invitations.user_username=%s AND Invitations.status_id=%s
+                          AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                (user_username, status_id, present_date, present_date, present_time))
+  return cursor.fetchall()
 
 if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
@@ -276,5 +332,9 @@ if __name__ == '__main__':
   #print create_event("test_event_2", "2015-10-13", "00:00:03", "00:00:23", "hello3", None, "org_3", "Math", 303)
   #print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
   #print user_past_events("test_last_14")
-  print events_at_same_time("test_event_1", "2015-10-11", "00:00:01", "00:00:21", "org_1", "IAB", 101)
+  #print delete_invite("test_last_0", "org_0", 16, 2)
+  print user_invites_by_category("test_last_17", "Speaker")
+  #print user_future_events("test_last_1")
+  #print future_events_with_status("test_last_1", 2)
+  #print org_future_events_by_category("org_8", "Speaker")
 
