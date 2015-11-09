@@ -62,7 +62,7 @@ body{background-color: #F7F7F6;}
 
         {% if incorrect %}
         <div class="alert alert-error">
-            <a class="close" data-dismiss="alert" href="#">×</a>Failed to invite. Invalid Username.
+            <a class="close" data-dismiss="alert" href="#">×</a>Failed to invite.
         </div>
         {% endif %}
         {% if success %}
@@ -78,10 +78,16 @@ body{background-color: #F7F7F6;}
         </form>
         </div>
     </div>
-    {% else %}
+    {% endif %}
+    {% if user_decide %}
     <div class="row">
         <div class="center span8 well">
         <form role="form" method="POST" action="/user_display_event/{{eid}}">
+        {% if incorrect %}
+        <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>Failed to participate.
+        </div>
+        {% endif %}
         {% if success %}
         <div class="alert alert-success">
             <a class="close" data-dismiss="alert" href="#">×</a>Success!
@@ -90,6 +96,11 @@ body{background-color: #F7F7F6;}
         <div class="form-group">
         <input id="invite" name="invite" class="btn btn-success" type="submit" value="Accept" />
         <input id="invite" name="invite" class="btn btn-danger" type="submit" value="Decline" />
+        <div class="form-group">
+        <label for="txtTitle">Particpate in Organization</label>
+        <input id="name" name="name" type="text" placeholder="org username" class="form-control input-md">
+        <input id="invite" name="invite" class="btn btn-primary" type="submit" value="Participate" />
+        </div>
         </div>
         </form>
         </div>

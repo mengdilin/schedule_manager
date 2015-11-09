@@ -64,7 +64,7 @@ def user_dashboard():
   user_invites_header = ["event id", "event name", "organizer", "date", "location"]
   invites_data = database.future_events_with_status(user, 3)
   events_data = database.user_future_events(user)
-
+  past_events = database.user_past_events(user)
   if request.method=="GET":
     return render_template(
       'dash.html',
@@ -72,32 +72,91 @@ def user_dashboard():
       invites_table = "Received Invites",
       invites_table_header=user_invites_header,
       invites_table_data=invites_data,
-      event_redir="/user_display_event/",
+      event_redir="/user_display_event_read/",
+      invite_redir="/user_display_event/",
       events_table = "Upcoming Events",
       events_table_header= user_invites_header,
-      events_table_data= events_data)
+      events_table_data= events_data,
+      search_redir="/userdash",
+      past_events_table = "Past Events Attended",
+      past_events_table_header = user_invites_header,
+      past_events_table_data = past_events)
   if request.method=="POST":
-    return render_template('dash.html', user_first=str(name[0]))
+    query = request.form["query"]
+    if query != "":
+      try:
+        events_data = database.user_invites_by_category(user, request.form["query"])
+      except:
+        print "invalid query"
+    return render_template(
+      'dash.html',
+      user_first=str(name[0]),
+      invites_table = "Received Invites",
+      invites_table_header=user_invites_header,
+      invites_table_data=invites_data,
+      event_redir="/user_display_event_read/",
+      invite_redir="/user_display_event/",
+      events_table = "Upcoming Events",
+      events_table_header= user_invites_header,
+      events_table_data= events_data,
+      search_redir="/userdash",
+      past_events_table = "Past Events Attended",
+      past_events_table_header = user_invites_header,
+      past_events_table_data = past_events)
 
 @app.route('/orgdash', methods=['GET', 'POST'])
 def org_dashboard():
   user = session["user"]
   name = database.find_organization(user)
+  events_header = ["id", "name", "date", "building", "room"]
+  invites_header = ["id", "name", "user"]
+  invites_data = database.all_org_invites(user)
+  events_data = database.events_created_by_org(user)
   if request.method=="GET":
-    return render_template('dash.html', user_first=str(name), nav_redir="/create_event", redir_name="Create Events")
+    return render_template(
+      'dash.html',
+      user_first=str(name),
+      nav_redir="/create_event",
+      redir_name="Create Events",
+      invites_table = "Upcoming Events' Invites",
+      invites_table_header = invites_header,
+      invites_table_data = invites_data,
+      events_table = "Events Created by Me",
+      events_table_header = events_header,
+      events_table_data = events_data,
+      invite_redir="/org_display_event/",
+      event_redir="/org_display_event/")
   if request.method=="POST":
-    return render_template('dash.html', user_first=str(name), nav_redir="/create_event", redir_name="Create Events")
+    query = request.form["query"]
+    if query != "":
+      try:
+        events_data = database.org_events_by_category(user, request.form["query"])
+      except:
+        print "invalid query"
+    return render_template(
+      'dash.html',
+      user_first=str(name),
+      nav_redir="/create_event",
+      redir_name="Create Events",
+      invites_table = "Upcoming Events' Invites",
+      invites_table_header = invites_header,
+      invites_table_data = invites_data,
+      events_table = "Events Created by Me",
+      events_table_header = events_header,
+      events_table_data = events_data,
+      invite_redir="/org_display_event/",
+      event_redir="/org_display_event/")
 
 @app.route('/orglogin',methods=['GET','POST'])
 def org_login():
-    if request.method=="GET":
-      return render_template('login.html', incorrect=False, action_name="orglogin", sign_up_redir="/orgsignup")
-    elif request.method=="POST":
-      if database.organization_login(request.form['login_username'], request.form['login_password']):
-        session["user"]=request.form['login_username']
-        return redirect(url_for("org_dashboard"))
-      else:
-        return render_template('login.html', incorrect=True, action_name="orglogin", sign_up_redir="/orgsignup")
+  if request.method=="GET":
+    return render_template('login.html', incorrect=False, action_name="orglogin", sign_up_redir="/orgsignup")
+  elif request.method=="POST":
+    if database.organization_login(request.form['login_username'], request.form['login_password']):
+      session["user"]=request.form['login_username']
+      return redirect(url_for("org_dashboard"))
+    else:
+      return render_template('login.html', incorrect=True, action_name="orglogin", sign_up_redir="/orgsignup")
 
 @app.route('/create_event',methods=['GET','POST'])
 def create_event():
@@ -136,7 +195,7 @@ def create_event():
         return redirect(url_for("org_display_event", eid=int(result)))
       else:
         return render_template("event_form.html", locations=locations, categories=categories, incorrect=True, dash_redir='/orgdash')
-    except Error:
+    except:
       return render_template("event_form.html", locations=locations, categories=categories, incorrect=True, dash_redir='/orgdash')
 
 @app.route('/org_display_event/<int:eid>',methods=['GET', 'POST'])
@@ -213,10 +272,44 @@ def user_display_event(eid):
       incorrect=False,
       success=False,
       eid=eid,
-      dash_redir='/userdash')
+      dash_redir='/userdash',
+      user_decide=True)
   if request.method=='POST':
     value = request.form["invite"]
-    print value
+    status_id = 3
+    if value == "Accept":
+      status_id = 1
+    elif value == "Decline":
+      status_id = 2
+    if status_id == 1 or status_id == 2:
+      database.update_invite(session["user"], event[6], eid, status_id)
+      return redirect(url_for("user_dashboard"))
+    if value == "Participate":
+      org_username = request.form["name"]
+      success = database.participates_in_org(session["user"], org_username)
+      print success
+      return render_template("event.html",
+        name=event[0],
+        filepath=event[5],
+        description=event[4],
+        date=event[1],
+        start_time=event[2],
+        end_time=event[3],
+        location=event[7]+" "+event[8],
+        category=str(category),
+        organizer=event[6],
+        event=False,
+        incorrect=(not success),
+        success=success,
+        eid=eid,
+        dash_redir='/userdash',
+        user_decide=True)
+
+@app.route('/user_display_event_read/<int:eid>', methods=['GET'])
+def user_display_event_read(eid):
+  event = database.find_event(eid)
+  category = database.get_categories_of_event(eid)
+  if request.method=='GET':
     return render_template("event.html",
       name=event[0],
       filepath=event[5],
@@ -231,8 +324,8 @@ def user_display_event(eid):
       incorrect=False,
       success=False,
       eid=eid,
-      dash_redir='/userdash')
-
+      dash_redir='/userdash',
+      user_decide=False)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

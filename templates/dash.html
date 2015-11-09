@@ -46,9 +46,9 @@ body{background-color: #F7F7F6;}
 <h1> Hello, {{user_first}}! </h1>
 </div>
 <div class="row">
-<form class="form-search">
+<form role="form" method="POST" action="{{search_redir}}">
 <div class="input-append">
-<input type="text" class="span2 search-query">
+<input type="text" name="query" id="query" placeholder="category: Study Break" class="span2 search-query">
     <button type="submit" class="btn"><i class="icon-search"></i></button>
 </div>
 </form>
@@ -71,7 +71,7 @@ body{background-color: #F7F7F6;}
                <tr>
                 {%for data in row %}
                   {% if loop.index == 1%}
-                  <td class="col-md-{{loop.index}}"><a href="{{event_redir}}{{data}}">{{data}}</a></td>
+                  <td class="col-md-{{loop.index}}"><a href="{{invite_redir}}{{data}}">{{data}}</a></td>
                   {% else %}
                   <td class="col-md-{{loop.index}}">{{data}}</td>
                   {% endif %}
@@ -113,5 +113,35 @@ body{background-color: #F7F7F6;}
           </div>
 </div>
 <!-- table 2 ends -->
+
+<!-- table 3 -->
+<div class="span9">
+<h2 class="sub-header">{{past_events_table}}</h2>
+  <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+              {%for item in past_events_table_header %}
+                  <th class="col-md-{{loop.index}}">{{item}}</th>
+              {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+              {%for row in past_events_table_data %}
+               <tr>
+                {%for data in row %}
+                  {% if loop.index == 1%}
+                  <td class="col-md-{{loop.index}}"><a href="{{event_redir}}{{data}}">{{data}}</a></td>
+                  {% else %}
+                  <td class="col-md-{{loop.index}}">{{data}}</td>
+                  {% endif %}
+                {% endfor %}
+               </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+</div>
+<!-- table 3 ends -->
 </div>
 </body>

@@ -151,11 +151,15 @@ def organization_login(org_username, password):
   return False
 
 def participates_in_org(user_username, org_username):
-  cursor = cnx.cursor()
-  cursor.execute("""INSERT INTO Users_Organizations (user_username, org_username)
-                    VALUES (%s, %s)""", (user_username, org_username))
-  cnx.commit()
-  cursor.close()
+  try:
+    cursor = cnx.cursor()
+    cursor.execute("""INSERT INTO Users_Organizations (user_username, org_username)
+                      VALUES (%s, %s)""", (user_username, org_username))
+    cnx.commit()
+    cursor.close()
+    return True
+  except mysql.connector.Error as err:
+    return False
 
 def users_in_organization(org_username):
   cursor = cnx.cursor()
@@ -173,7 +177,7 @@ def organizations_user_is_in(user_username):
 
 def events_created_by_org(org_username):
   cursor = cnx.cursor()
-  cursor.execute("SELECT name FROM Creates_Events WHERE org_username=%s", (org_username,))
+  cursor.execute("SELECT eid, name, date, building, room FROM Creates_Events WHERE org_username=%s", (org_username,))
   return cursor.fetchall()
 
 def find_user(username):
@@ -235,7 +239,7 @@ def user_past_events(user_username):
   present_time = present.time()
   present_date = present.date()
   cursor = cnx.cursor()
-  cursor.execute("""SELECT DISTINCT *
+  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
                     FROM Creates_Events, Invitations
                     WHERE Invitations.user_username=%s AND Invitations.status_id=1
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) > 0
@@ -277,7 +281,7 @@ def user_invites_by_category(user_username, keyword):
   present = datetime.now()
   present_date = present.date()
   present_time = present.time()
-  cursor.execute("""SELECT DISTINCT *
+  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
                     FROM Creates_Events, Invitations, Events_Categories
                     WHERE Invitations.user_username=%s AND Invitations.status_id=1 AND Creates_Events.eid = Events_Categories.eid
                           AND Events_Categories.name REGEXP %s AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
@@ -285,22 +289,9 @@ def user_invites_by_category(user_username, keyword):
                 (user_username, keyword, present_date, present_date, present_time))
   return cursor.fetchall()
 
-def user_invites(user_username):
-  cursor = cnx.cursor()
-  present = datetime.now()
-  present_date = present.date()
-  present_time = present.time()
-  cursor.execute("""SELECT DISTINCT *
-                    FROM Creates_Events, Invitations
-                    WHERE Invitations.user_username=%s AND Invitations.status_id=3 AND
-                          Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
-                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
-                (user_username, present_date, present_date, present_time))
-  return cursor.fetchall()
-
 def org_events_by_category(org_username, keyword):
   cursor = cnx.cursor()
-  cursor.execute("""SELECT DISTINCT *
+  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
                     FROM Creates_Events, Events_Categories
                     WHERE Creates_Events.eid = Events_Categories.eid AND Creates_Events.org_username=%s AND Events_Categories.name REGEXP %s """,
                  (org_username, keyword))
@@ -344,7 +335,7 @@ def all_org_invites(org_username):
                           OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
                 (org_username, present_date, present_date, present_time))
   return cursor.fetchall()
-  
+
 
 if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
