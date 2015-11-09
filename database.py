@@ -193,8 +193,7 @@ def find_event(eid):
   try:
     cursor = cnx.cursor()
     cursor.execute("SELECT name, date, start_time, end_time, description, image, org_username, building, room FROM Creates_Events WHERE eid=%s", (eid,))
-    for (name, date, start_time, end_time, description, image, org_username, building, room) in cursor:
-      return ("{} {} {} {} {} {} {} {} {}").format(str(name), str(date), str(start_time), str(end_time), str(description), str(image), str(org_username), str(building), str(room))
+    return cursor.fetchall()
   except mysql.connector.Error as err:
     print err
     return None
@@ -316,7 +315,7 @@ def future_events_with_status(user_username, status_id):
   present = datetime.now()
   present_date = present.date()
   present_time = present.time()
-  cursor.execute("""SELECT DISTINCT *
+  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
                     FROM Creates_Events, Invitations
                     WHERE Invitations.user_username=%s AND Invitations.status_id=%s
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
@@ -342,6 +341,12 @@ def num_accepted_invites(eid, org_username):
   cursor.execute("SELECT COUNT(*) FROM Invitations WHERE org_username=%s AND eid=%s AND status_id=1", (org_username, eid))
   a = cursor.fetchall()
   return a[0][0]
+
+def find_participants(events, organizer):
+  for item in events:
+    eid = item[0]
+    item = list(item)
+    item.append(num_accepted_invites(eid, organizer))
 
 if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"

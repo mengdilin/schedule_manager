@@ -68,7 +68,7 @@ def user_dashboard():
   if request.method=="GET":
     return render_template(
       'dash.html',
-      user_first=str(name[0]),
+      user_first=name,
       invites_table = "Received Invites",
       invites_table_header=user_invites_header,
       invites_table_data=invites_data,
@@ -200,7 +200,7 @@ def create_event():
 
 @app.route('/org_display_event/<int:eid>',methods=['GET', 'POST'])
 def org_display_event(eid):
-  event = database.find_event(eid)
+  event = database.find_event(eid)[0]
   category = database.get_categories_of_event(eid)
   if request.method=='GET':
     return render_template("event.html",
@@ -255,7 +255,7 @@ def org_display_event(eid):
 
 @app.route('/user_display_event/<int:eid>',methods=['GET', 'POST'])
 def user_display_event(eid):
-  event = database.find_event(eid)
+  event = database.find_event(eid)[0]
   category = database.get_categories_of_event(eid)
   if request.method=='GET':
     return render_template("event.html",
@@ -307,7 +307,7 @@ def user_display_event(eid):
 
 @app.route('/user_display_event_read/<int:eid>', methods=['GET'])
 def user_display_event_read(eid):
-  event = database.find_event(eid)
+  event = database.find_event(eid)[0]
   category = database.get_categories_of_event(eid)
   if request.method=='GET':
     return render_template("event.html",
@@ -344,6 +344,7 @@ def org_sign_up():
     if password != confirm_pass or not database.create_organization(name, username, password):
       return render_template('signup.html', incorrect=True, user=False, action_name="orgsignup")
     else:
+      session["user"] = username
       return redirect(url_for("org_dashboard"))
 
 @app.route('/usersignup',methods=['GET','POST'])
@@ -359,6 +360,7 @@ def user_sign_up():
     if password != confirm_pass or not database.create_user(first_name, last_name, username, password):
       return render_template('signup.html', incorrect=True, user=True, action_name="usersignup")
     else:
+      session["user"] = username
       return redirect(url_for("user_dashboard"))
 
 @app.route('/upload', methods=['GET', 'POST'])
