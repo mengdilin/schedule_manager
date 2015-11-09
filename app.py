@@ -61,8 +61,16 @@ def user_login():
 def user_dashboard():
   user = session["user"]
   name = database.find_user(user)
+  user_invites_header = ["event id", "event name", "organizer", "date", "location"]
+  invites_data = database.future_events_with_status(user, 3)
   if request.method=="GET":
-    return render_template('dash.html', user_first=str(name[0]))
+    return render_template(
+      'dash.html',
+      user_first=str(name[0]),
+      invites_table = "Received Invites",
+      invites_table_header=user_invites_header,
+      invites_table_data=invites_data,
+      event_redir="/user_display_event/")
   if request.method=="POST":
     return render_template('dash.html', user_first=str(name[0]))
 
@@ -71,7 +79,7 @@ def org_dashboard():
   user = session["user"]
   name = database.find_organization(user)
   if request.method=="GET":
-    return render_template('dash.html', user_first=str(name))
+    return render_template('dash.html', user_first=str(name), nav_redir="/create_event", redir_name="Create Events")
   if request.method=="POST":
     return render_template('dash.html', user_first=str(name), nav_redir="/create_event", redir_name="Create Events")
 
@@ -106,9 +114,9 @@ def create_event():
       building = None
       room = None
       if location is not None:
-        locations = location.split(" ")
-        building = locations[0]
-        room = location[1]
+        locations_tmp = location.split(" ")
+        building = locations_tmp[0]
+        room = locations_tmp[1]
       result = database.create_event(name,
         parse_date(date),
         parse_time(start_time),
@@ -118,14 +126,14 @@ def create_event():
         user,
         building,
         room)
+
       if result != False:
         database.create_event_category(result, category)
-        return redirect(url_for("org_display_event/", result))
+        return redirect(url_for("org_display_event", eid=int(result)))
       else:
         return render_template("event_form.html", locations=locations, categories=categories, incorrect=True, dash_redir='/orgdash')
     except Error:
       return render_template("event_form.html", locations=locations, categories=categories, incorrect=True, dash_redir='/orgdash')
-
 
 @app.route('/org_display_event/<int:eid>',methods=['GET', 'POST'])
 def org_display_event(eid):
@@ -150,7 +158,6 @@ def org_display_event(eid):
   if request.method=='POST':
     username=request.form["name"]
     if database.create_invitation(username, session["user"], eid):
-      print "inside"
       return render_template("event.html",
       name=event[0],
       filepath=event[5],
@@ -182,6 +189,27 @@ def org_display_event(eid):
       success=False,
       eid=eid,
       dash_redir='/orgdash')
+
+@app.route('/user_display_event/<int:eid>',methods=['GET'])
+def user_display_event(eid):
+  event = database.find_event(eid)
+  category = database.get_categories_of_event(eid)
+  if request.method=='GET':
+    return render_template("event.html",
+      name=event[0],
+      filepath=event[5],
+      description=event[4],
+      date=event[1],
+      start_time=event[2],
+      end_time=event[3],
+      location=event[7]+" "+event[8],
+      category=str(category),
+      organizer=event[6],
+      event=False,
+      incorrect=False,
+      success=False,
+      eid=eid,
+      dash_redir='/userdash')
 
 
 @app.route('/uploads/<filename>')
