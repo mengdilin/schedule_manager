@@ -189,7 +189,8 @@ def find_event(eid):
   try:
     cursor = cnx.cursor()
     cursor.execute("SELECT name, date, start_time, end_time, description, image, org_username, building, room FROM Creates_Events WHERE eid=%s", (eid,))
-    return list(cursor.fetchone())
+    for (name, date, start_time, end_time, description, image, org_username, building, room) in cursor:
+      return ("{} {} {} {} {} {} {} {} {}").format(str(name), str(date), str(start_time), str(end_time), str(description), str(image), str(org_username), str(building), str(room))
   except mysql.connector.Error as err:
     print err
     return None
@@ -285,19 +286,6 @@ def user_invites_by_category(user_username, keyword):
                 (user_username, keyword, present_date, present_date, present_time))
   return cursor.fetchall()
 
-def user_invites(user_username):
-  cursor = cnx.cursor()
-  present = datetime.now()
-  present_date = present.date()
-  present_time = present.time()
-  cursor.execute("""SELECT DISTINCT *
-                    FROM Creates_Events, Invitations
-                    WHERE Invitations.user_username=%s AND Invitations.status_id=3 AND
-                          Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
-                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
-                (user_username, present_date, present_date, present_time))
-  return cursor.fetchall()
-
 def org_events_by_category(org_username, keyword):
   cursor = cnx.cursor()
   cursor.execute("""SELECT DISTINCT *
@@ -324,7 +312,7 @@ def future_events_with_status(user_username, status_id):
   present = datetime.now()
   present_date = present.date()
   present_time = present.time()
-  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
+  cursor.execute("""SELECT DISTINCT *
                     FROM Creates_Events, Invitations
                     WHERE Invitations.user_username=%s AND Invitations.status_id=%s
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
@@ -337,13 +325,19 @@ def all_org_invites(org_username):
   present = datetime.now()
   present_date = "2015-10-13"
   present_time = present.time()
-  cursor.execute("""SELECT DISTINCT Invitations.eid, Creates_Events.name, Invitations.user_username
+  cursor.execute("""SELECT DISTINCT Invitations.eid, Creates_Events.name, Invitations.user_username  
                     FROM Creates_Events, Invitations
                     WHERE Invitations.org_username=%s AND (Invitations.status_id=1 OR Invitations.status_id=3)
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
                           OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
                 (org_username, present_date, present_date, present_time))
   return cursor.fetchall()
+
+def num_accepted_invites(eid, org_username):
+  cursor = cnx.cursor()
+  cursor.execute("SELECT COUNT(*) FROM Invitations WHERE org_username=%s AND eid=%s AND status_id=1", (org_username, eid))
+  a = cursor.fetchall()
+  return a[0][0]
   
 
 if __name__ == '__main__':
@@ -370,5 +364,5 @@ if __name__ == '__main__':
   #print future_events_with_status("test_last_1", 2)
   #print org_future_events_by_category("org_8", "Speaker")
   #print all_org_invites("org_3")
-  print update_invite("mengdilin", "org_0", 62, 1)
-
+  #print update_invite("mengdilin", "org_0", 62, 1)
+  print num_accepted_invites(19, "org_3")
