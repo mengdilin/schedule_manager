@@ -63,6 +63,8 @@ def user_dashboard():
   name = database.find_user(user)
   user_invites_header = ["event id", "event name", "organizer", "date", "location"]
   invites_data = database.future_events_with_status(user, 3)
+  events_data = database.user_future_events(user)
+
   if request.method=="GET":
     return render_template(
       'dash.html',
@@ -70,7 +72,10 @@ def user_dashboard():
       invites_table = "Received Invites",
       invites_table_header=user_invites_header,
       invites_table_data=invites_data,
-      event_redir="/user_display_event/")
+      event_redir="/user_display_event/",
+      events_table = "Upcoming Events",
+      events_table_header= user_invites_header,
+      events_table_data= events_data)
   if request.method=="POST":
     return render_template('dash.html', user_first=str(name[0]))
 
@@ -126,7 +131,6 @@ def create_event():
         user,
         building,
         room)
-
       if result != False:
         database.create_event_category(result, category)
         return redirect(url_for("org_display_event", eid=int(result)))
@@ -190,11 +194,29 @@ def org_display_event(eid):
       eid=eid,
       dash_redir='/orgdash')
 
-@app.route('/user_display_event/<int:eid>',methods=['GET'])
+@app.route('/user_display_event/<int:eid>',methods=['GET', 'POST'])
 def user_display_event(eid):
   event = database.find_event(eid)
   category = database.get_categories_of_event(eid)
   if request.method=='GET':
+    return render_template("event.html",
+      name=event[0],
+      filepath=event[5],
+      description=event[4],
+      date=event[1],
+      start_time=event[2],
+      end_time=event[3],
+      location=event[7]+" "+event[8],
+      category=str(category),
+      organizer=event[6],
+      event=False,
+      incorrect=False,
+      success=False,
+      eid=eid,
+      dash_redir='/userdash')
+  if request.method=='POST':
+    value = request.form["invite"]
+    print value
     return render_template("event.html",
       name=event[0],
       filepath=event[5],

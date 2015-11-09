@@ -248,7 +248,7 @@ def user_future_events(user_username):
   present = datetime.now()
   present_date = present.date()
   present_time = present.time()
-  cursor.execute("""SELECT DISTINCT *
+  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
                     FROM Creates_Events, Invitations
                     WHERE Invitations.user_username=%s AND Invitations.status_id=1
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0

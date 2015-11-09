@@ -53,8 +53,9 @@ body{background-color: #F7F7F6;}
 </div>
 </form>
 </div>
-<div class="row">
-<div class="span6">
+
+<!-- table 1 -->
+<div class="span9">
 <h2 class="sub-header">{{invites_table}}</h2>
   <div class="table-responsive">
             <table class="table table-striped">
@@ -81,37 +82,36 @@ body{background-color: #F7F7F6;}
             </table>
           </div>
 </div>
-  <div class="span5 offset1">
-          <h2 class="sub-header">test table</h2>
-          <div class="table-responsive">
+<!-- table 1 ends -->
+
+<!-- table 2 -->
+<div class="span9">
+<h2 class="sub-header">{{events_table}}</h2>
+  <div class="table-responsive">
             <table class="table table-striped">
               <thead>
-                <tr>
-                  <th class="col-md-1">#</th>
-                  <th class="col-md-2">Header</th>
-                  <th class="col-md-3">Header</th>
+              <tr>
+              {%for item in events_table_header %}
+                  <th class="col-md-{{loop.index}}">{{item}}</th>
+              {% endfor %}
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td class="col-md-1">1,001</td>
-                  <td class="col-md-2">1,001</td>
-                  <td class="col-md-3">1,001</td>
-                </tr>
-                <tr>
-                  <td class="col-md-1">1,001</td>
-                  <td class="col-md-2">1,001</td>
-                  <td class="col-md-3">1,001</td>
-                </tr>
-                 <tr>
-                  <td class="col-md-1">1,001</td>
-                  <td class="col-md-2">1,001</td>
-                  <td class="col-md-3">1,001</td>
-                </tr>
+              {%for row in events_table_data %}
+               <tr>
+                {%for data in row %}
+                  {% if loop.index == 1%}
+                  <td class="col-md-{{loop.index}}"><a href="{{event_redir}}{{data}}">{{data}}</a></td>
+                  {% else %}
+                  <td class="col-md-{{loop.index}}">{{data}}</td>
+                  {% endif %}
+                {% endfor %}
+               </tr>
+              {% endfor %}
               </tbody>
             </table>
-            </div>
-            </div>
-            </div>
+          </div>
+</div>
+<!-- table 2 ends -->
 </div>
 </body>
