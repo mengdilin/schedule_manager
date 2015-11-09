@@ -63,9 +63,9 @@ def user_dashboard():
   name = database.find_user(user)
   user_invites_header = ["event id", "event name", "organizer", "date", "location"]
   invites_data = database.future_events_with_status(user, 3)
-  events_data = database.user_future_events(user)
-  past_events = database.user_past_events(user)
   if request.method=="GET":
+    events_data = database.user_future_events(user)
+    past_events = database.user_past_events(user)
     return render_template(
       'dash.html',
       user_first=name,
@@ -88,6 +88,8 @@ def user_dashboard():
         events_data = database.user_invites_by_category(user, request.form["query"])
       except:
         print "invalid query"
+    events_data = database.user_future_events(user)
+    past_events = database.user_past_events(user)
     return render_template(
       'dash.html',
       user_first=str(name[0]),
@@ -110,9 +112,9 @@ def org_dashboard():
   name = database.find_organization(user)
   events_header = ["id", "name", "date", "building", "room"]
   invites_header = ["id", "name", "user"]
-  invites_data = database.all_org_invites(user)
-  events_data = database.events_created_by_org(user)
   if request.method=="GET":
+    invites_data = database.all_org_invites(user)
+    events_data = database.events_created_by_org(user)
     return render_template(
       'dash.html',
       user_first=str(name),
@@ -133,6 +135,8 @@ def org_dashboard():
         events_data = database.org_events_by_category(user, request.form["query"])
       except:
         print "invalid query"
+    invites_data = database.all_org_invites(user)
+    events_data = database.events_created_by_org(user)
     return render_template(
       'dash.html',
       user_first=str(name),

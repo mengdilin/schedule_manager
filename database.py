@@ -256,7 +256,7 @@ def user_future_events(user_username):
                     FROM Creates_Events, Invitations
                     WHERE Invitations.user_username=%s AND Invitations.status_id=1
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
-                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) < 0)""",
                 (user_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
@@ -373,4 +373,4 @@ if __name__ == '__main__':
   #print org_future_events_by_category("org_8", "Speaker")
   #print all_org_invites("org_3")
   #print update_invite("mengdilin", "org_0", 62, 1)
-  print num_accepted_invites(19, "org_3")
+  print user_future_events("ajuchnicki")
