@@ -332,7 +332,7 @@ def all_org_invites(org_username):
                     FROM Creates_Events, Invitations
                     WHERE Invitations.org_username=%s AND (Invitations.status_id=1 OR Invitations.status_id=3)
                           AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
-                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) < 0)""",
                 (org_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
