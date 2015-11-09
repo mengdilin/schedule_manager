@@ -326,7 +326,41 @@ def future_events_with_status(user_username, status_id):
                 (user_username, status_id, present_date, present_date, present_time))
   return cursor.fetchall()
 
-if __name__ == '__main__':
-  result = future_events_with_status("mengdilin", 3)
+def all_org_invites(org_username):
+  cursor = cnx.cursor()
+  present = datetime.now()
+  present_date = "2015-10-13"
+  present_time = present.time()
+  cursor.execute("""SELECT DISTINCT Invitations.eid, Creates_Events.name, Invitations.user_username
+                    FROM Creates_Events, Invitations
+                    WHERE Invitations.org_username=%s AND (Invitations.status_id=1 OR Invitations.status_id=3)
+                          AND Creates_Events.eid = Invitations.eid AND ((SELECT DATEDIFF(%s, Creates_Events.date)) < 0
+                          OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
+                (org_username, present_date, present_date, present_time))
+  return cursor.fetchall()
 
+if __name__ == '__main__':
+  #query = "SELECT username FROM Users WHERE username=%s"
+  #cursor.execute(query, ('mengdilin',))
+  #print cursor.fetchall()
+  #name="test_event5"
+  #date="2015-10-10"
+  #start_time="00:00:01"
+  #end_time="00:00:02"
+  #description="hello"
+  #image=None
+  #org_name="broomclub"
+  #building=None
+  #room=None
+  #print create_event(name, date, start_time, end_time, description, image, org_name, building, room)
+  #print organization_login("broomclub", "broomslife "):
+  #print create_event("test_event_2", "2015-10-13", "00:00:03", "00:00:23", "hello3", None, "org_3", "Math", 303)
+  #print find_eid("test_event_3", "2015-10-13", "00:00:03", "00:00:23", "org_3", "Math", 303)
+  #print user_past_events("test_last_14")
+  #print delete_invite("test_last_0", "org_0", 16, 2)
+  #print user_invites_by_category("test_last_17", "Speaker")
+  #print user_future_events("test_last_1")
+  #print future_events_with_status("test_last_1", 2)
+  #print org_future_events_by_category("org_8", "Speaker")
+  print all_org_invites("org_3")
 
