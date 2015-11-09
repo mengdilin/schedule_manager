@@ -108,7 +108,7 @@ def user_dashboard():
 def org_dashboard():
   user = session["user"]
   name = database.find_organization(user)
-  events_header = ["id", "name", "date", "building", "room"]
+  events_header = ["id", "name", "organizer", "date", "building", "room"]
   invites_header = ["id", "name", "user"]
   invites_data = database.all_org_invites(user)
   events_data = database.events_created_by_org(user)
