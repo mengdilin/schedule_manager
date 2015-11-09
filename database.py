@@ -291,7 +291,7 @@ def user_invites_by_category(user_username, keyword):
 
 def org_events_by_category(org_username, keyword):
   cursor = cnx.cursor()
-  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.org_username, Creates_Events.date, Creates_Events.building, Creates_Events.room
+  cursor.execute("""SELECT DISTINCT Creates_Events.eid, Creates_Events.name, Creates_Events.date, Creates_Events.building, Creates_Events.room
                     FROM Creates_Events, Events_Categories
                     WHERE Creates_Events.eid = Events_Categories.eid AND Creates_Events.org_username=%s AND Events_Categories.name REGEXP %s """,
                  (org_username, keyword))
