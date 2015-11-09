@@ -257,15 +257,21 @@ def user_future_events(user_username):
                 (user_username, present_date, present_date, present_time))
   return cursor.fetchall()
 
-def delete_invite(user_username, org_username, eid, status_id):
+def update_invite(user_username, org_username, eid, status_id):
   cursor = cnx.cursor()
-  if status_id == 2:
+  if status_id == 1:
+    cursor.execute("UPDATE Invitations SET status_id=1, status_name='accepted' WHERE user_username=%s AND org_username=%s AND eid=%s", (user_username, org_username, eid))
+    cnx.commit()
+    cursor.close()
+    return True
+  elif status_id == 2:
     cursor.execute("DELETE FROM Invitations WHERE user_username=%s AND org_username=%s AND eid=%s", (user_username, org_username, eid))
     cnx.commit()
     cursor.close()
     return True
-  cursor.close()
-  return False
+  else:
+    cursor.close()
+    return False
 
 def user_invites_by_category(user_username, keyword):
   cursor = cnx.cursor()
@@ -326,6 +332,7 @@ def all_org_invites(org_username):
                           OR (SELECT DATEDIFF(%s, Creates_Events.date)) = 0 AND (SELECT TIMEDIFF(%s, Creates_Events.start_time)) > 0)""",
                 (org_username, present_date, present_date, present_time))
   return cursor.fetchall()
+  
 
 if __name__ == '__main__':
   #query = "SELECT username FROM Users WHERE username=%s"
@@ -350,5 +357,6 @@ if __name__ == '__main__':
   #print user_future_events("test_last_1")
   #print future_events_with_status("test_last_1", 2)
   #print org_future_events_by_category("org_8", "Speaker")
-  print all_org_invites("org_3")
+  #print all_org_invites("org_3")
+  print update_invite("mengdilin", "org_0", 62, 1)
 
