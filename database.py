@@ -326,7 +326,7 @@ def future_events_with_status(user_username, status_id):
 def all_org_invites(org_username):
   cursor = cnx.cursor()
   present = datetime.now()
-  present_date = "2015-10-13"
+  present_date = present.date()
   present_time = present.time()
   cursor.execute("""SELECT DISTINCT Invitations.eid, Creates_Events.name, Invitations.user_username
                     FROM Creates_Events, Invitations
