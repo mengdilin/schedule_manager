@@ -82,14 +82,15 @@ def user_dashboard():
       past_events_table_header = user_invites_header,
       past_events_table_data = past_events)
   if request.method=="POST":
+    events_data = database.user_future_events(user)
+    past_events = database.user_past_events(user)
     query = request.form["query"]
     if query != "":
       try:
         events_data = database.user_invites_by_category(user, request.form["query"])
+        print events_data
       except:
         print "invalid query"
-    events_data = database.user_future_events(user)
-    past_events = database.user_past_events(user)
     return render_template(
       'dash.html',
       user_first=str(name[0]),
@@ -129,14 +130,14 @@ def org_dashboard():
       invite_redir="/org_display_event/",
       event_redir="/org_display_event/")
   if request.method=="POST":
+    invites_data = database.all_org_invites(user)
+    events_data = database.events_created_by_org(user)
     query = request.form["query"]
     if query != "":
       try:
         events_data = database.org_events_by_category(user, request.form["query"])
       except:
         print "invalid query"
-    invites_data = database.all_org_invites(user)
-    events_data = database.events_created_by_org(user)
     return render_template(
       'dash.html',
       user_first=str(name),
